@@ -79,7 +79,7 @@ serve(async (req) => {
 For category, use:
 - "paid" for completed purchases/receipts
 - "subscriptions" if it's clearly a recurring subscription charge
-- "pending" if it appears to be an unpaid invoice
+- "upcoming" if it appears to be an unpaid invoice or future charge
 
 Return ONLY the JSON, no other text.`,
     });

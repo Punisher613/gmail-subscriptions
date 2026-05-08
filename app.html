@@ -116,8 +116,6 @@
     }
 
     .invoice-row:hover { border-color: #2d3f5a; background: #1a2133; }
-    .invoice-row.pending { border-color: #2d2a1a; background: #13110a; }
-    .invoice-row.pending:hover { border-color: #4a3e10; }
     .invoice-row.upcoming { border-color: #1a2a1a; background: #0e130e; }
     .invoice-row.upcoming:hover { border-color: #2a4a2a; }
 
@@ -177,7 +175,6 @@
     }
 
     .badge-paid     { background: #14532d; color: #4ade80; border: 1px solid #166534; }
-    .badge-pending  { background: #3b2a06; color: #facc15; border: 1px solid #713f12; }
     .badge-upcoming { background: #0f2a0f; color: #86efac; border: 1px solid #166534; }
     .badge-filing   { background: #1e293b; color: #60a5fa; border: 1px solid #1e40af; }
     .badge-sub      { background: #1e1a3b; color: #a78bfa; border: 1px solid #4c1d95; }
@@ -1013,15 +1010,15 @@
           <button onclick="logout()" style="background:#1e293b;border:1px solid #262630;color:#94a3b8;font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;">Log out</button>
         </div>
       </div>
-      <p id="sub-header">Last scanned <span id="scan-date">May 7, 2026</span></p>
+      <p id="sub-header">Track your subscriptions, receipts & charges</p>
       <div class="summary-bar">
         <div class="stat">
           <div class="stat-label">Total Paid</div>
           <div class="stat-value green" id="stat-total-paid">—</div>
         </div>
         <div class="stat">
-          <div class="stat-label">Pending</div>
-          <div class="stat-value yellow">2</div>
+          <div class="stat-label">Upcoming</div>
+          <div class="stat-value yellow" id="stat-upcoming">0</div>
         </div>
         <div class="stat">
           <div class="stat-label">Monthly (active)</div>
@@ -1033,9 +1030,9 @@
     <div class="tabs">
       <button class="tab active" onclick="filter('all',this)">All</button>
       <button class="tab" onclick="filter('paid',this)">Paid</button>
-      <button class="tab" onclick="filter('pending',this)">Pending</button>
       <button class="tab" onclick="filter('upcoming',this)">Upcoming</button>
       <button class="tab" onclick="showDashboard(this)" style="margin-left:auto; border-color:#2563eb33;">Dashboard</button>
+      <button class="tab" onclick="showSettings(this)" style="border-color:#6366f133;">Settings</button>
     </div>
 
     <!-- ══ DASHBOARD ══ -->
@@ -1065,25 +1062,60 @@
       </div>
     </div>
 
-    <!-- ══ PENDING ══ -->
-    <div class="section-header-row section-pending">
-      <div class="section-label" style="margin:0;">Pending / Auto-charge</div>
-      <button class="add-sub-btn" onclick="showAddForm('pending')" title="Add a pending charge">+</button>
-    </div>
-    <div class="invoice-list" id="list-pending">
-      <div class="add-sub-form" id="add-form-pending">
-        <input type="text" id="add-name-pending" placeholder="Charge name" onkeydown="if(event.key==='Enter') saveNewItem('pending'); if(event.key==='Escape') hideAddForm('pending');">
-        <div class="add-form-row">
-          <input type="date" id="add-date-pending">
-          <input type="number" id="add-amt-pending" placeholder="Amount" step="0.01" min="0">
+    <!-- ══ SETTINGS ══ -->
+    <div class="dashboard" id="settings-panel" style="display:none;">
+      <button class="dash-back" onclick="hideSettings()">Back to list</button>
+
+      <div style="background:#111827;border:1px solid #1f2937;border-radius:16px;padding:24px;margin-bottom:20px;">
+        <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;">Account</h3>
+        <p style="color:#64748b;font-size:13px;margin-bottom:16px;">Manage your account and preferences.</p>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #1f2937;">
+          <span style="color:#94a3b8;font-size:13px;width:80px;">Email</span>
+          <span style="color:#e2e8f0;font-size:14px;" id="settings-email"></span>
         </div>
-        <input type="text" id="add-note-pending" placeholder="Note (optional)" onkeydown="if(event.key==='Enter') saveNewItem('pending'); if(event.key==='Escape') hideAddForm('pending');">
-        <div class="form-actions">
-          <button class="form-cancel-btn" onclick="hideAddForm('pending')">Cancel</button>
-          <button class="form-save-btn" onclick="saveNewItem('pending')">Add</button>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #1f2937;">
+          <span style="color:#94a3b8;font-size:13px;width:80px;">Plan</span>
+          <span style="font-size:13px;font-weight:600;" id="settings-plan"></span>
         </div>
       </div>
 
+      <div style="background:#111827;border:1px solid #1f2937;border-radius:16px;padding:24px;margin-bottom:20px;">
+        <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;">Connect Your Email</h3>
+        <p style="color:#64748b;font-size:13px;margin-bottom:20px;">Get receipts automatically imported from your inbox.</p>
+
+        <div style="background:#0b0f19;border:1px solid #1f2937;border-radius:12px;padding:20px;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:12px;">Option 1: Scan Receipt</div>
+          <p style="color:#94a3b8;font-size:13px;line-height:1.6;">
+            Use the <strong style="color:#6366f1;">Scan Receipt</strong> button in the header to snap a photo or upload a receipt image. Our AI will automatically extract vendor, date, and amount.
+          </p>
+        </div>
+
+        <div style="background:#0b0f19;border:1px solid #1f2937;border-radius:12px;padding:20px;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:12px;">Option 2: Forward Receipts</div>
+          <p style="color:#94a3b8;font-size:13px;line-height:1.6;margin-bottom:12px;">
+            Set up auto-forwarding from your email to have receipts processed automatically.
+          </p>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="text" readonly id="forward-email" style="flex:1;background:#12141e;border:1px solid #262630;border-radius:8px;padding:10px 12px;color:#e2e8f0;font-size:13px;font-family:monospace;" value="">
+            <button onclick="copyForwardEmail()" style="background:#6366f1;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Copy</button>
+          </div>
+          <p style="color:#475569;font-size:11px;margin-top:8px;">In Gmail: Settings → Forwarding → Add this address</p>
+        </div>
+
+        <div style="background:#0b0f19;border:1px solid #1f2937;border-radius:12px;padding:20px;">
+          <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:12px;">Option 3: Connect Gmail (Coming Soon)</div>
+          <p style="color:#94a3b8;font-size:13px;line-height:1.6;">
+            One-click Google connection that automatically scans your inbox for receipts and invoices. No forwarding needed.
+          </p>
+          <button disabled style="background:#1f2937;color:#475569;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:not-allowed;margin-top:10px;">Connect Gmail — Coming Soon</button>
+        </div>
+      </div>
+
+      <div style="background:#111827;border:1px solid #1f2937;border-radius:16px;padding:24px;">
+        <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;">Data</h3>
+        <p style="color:#64748b;font-size:13px;margin-bottom:16px;">Export or manage your data.</p>
+        <button onclick="exportData()" style="background:#1f2937;color:#e2e8f0;border:1px solid #374151;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;">Export All Data (JSON)</button>
+      </div>
     </div>
 
     <!-- ══ UPCOMING ══ -->
@@ -1094,10 +1126,7 @@
     <div class="invoice-list" id="list-upcoming">
       <div class="add-sub-form" id="add-form-upcoming">
         <input type="text" id="add-name-upcoming" placeholder="Charge name" onkeydown="if(event.key==='Enter') saveNewItem('upcoming'); if(event.key==='Escape') hideAddForm('upcoming');">
-        <div class="add-form-row">
-          <input type="date" id="add-date-upcoming">
-          <input type="number" id="add-amt-upcoming" placeholder="Amount" step="0.01" min="0">
-        </div>
+        <input type="date" id="add-date-upcoming">
         <input type="text" id="add-note-upcoming" placeholder="Note (optional)" onkeydown="if(event.key==='Enter') saveNewItem('upcoming'); if(event.key==='Escape') hideAddForm('upcoming');">
         <div class="form-actions">
           <button class="form-cancel-btn" onclick="hideAddForm('upcoming')">Cancel</button>
@@ -1117,10 +1146,7 @@
       <!-- Add form (hidden by default) -->
       <div class="add-sub-form" id="add-sub-form">
         <input type="text" id="new-sub-name" placeholder="Subscription name (e.g. Netflix)" onkeydown="if(event.key==='Enter') saveNewItem('subscriptions'); if(event.key==='Escape') hideAddForm('subscriptions');">
-        <div class="add-form-row">
-          <input type="date" id="new-sub-date">
-          <input type="number" id="new-sub-amt" placeholder="Monthly price" step="0.01" min="0">
-        </div>
+        <input type="date" id="new-sub-date">
         <input type="text" id="new-sub-note" placeholder="Note (optional)" onkeydown="if(event.key==='Enter') saveNewItem('subscriptions'); if(event.key==='Escape') hideAddForm('subscriptions');">
         <div class="form-actions">
           <button class="form-cancel-btn" onclick="hideAddForm('subscriptions')">Cancel</button>
@@ -1138,10 +1164,7 @@
     <div class="invoice-list" id="list-paid">
       <div class="add-sub-form" id="add-form-paid">
         <input type="text" id="add-name-paid" placeholder="Charge name" onkeydown="if(event.key==='Enter') saveNewItem('paid'); if(event.key==='Escape') hideAddForm('paid');">
-        <div class="add-form-row">
-          <input type="date" id="add-date-paid">
-          <input type="number" id="add-amt-paid" placeholder="Amount" step="0.01" min="0">
-        </div>
+        <input type="date" id="add-date-paid">
         <input type="text" id="add-note-paid" placeholder="Note (optional)" onkeydown="if(event.key==='Enter') saveNewItem('paid'); if(event.key==='Escape') hideAddForm('paid');">
         <div class="form-actions">
           <button class="form-cancel-btn" onclick="hideAddForm('paid')">Cancel</button>
@@ -1159,10 +1182,7 @@
     <div class="invoice-list" id="list-missing">
       <div class="add-sub-form" id="add-form-missing">
         <input type="text" id="add-name-missing" placeholder="Charge name" onkeydown="if(event.key==='Enter') saveNewItem('missing'); if(event.key==='Escape') hideAddForm('missing');">
-        <div class="add-form-row">
-          <input type="date" id="add-date-missing">
-          <input type="number" id="add-amt-missing" placeholder="Amount" step="0.01" min="0">
-        </div>
+        <input type="date" id="add-date-missing">
         <input type="text" id="add-note-missing" placeholder="Note (optional)" onkeydown="if(event.key==='Enter') saveNewItem('missing'); if(event.key==='Escape') hideAddForm('missing');">
         <div class="form-actions">
           <button class="form-cancel-btn" onclick="hideAddForm('missing')">Cancel</button>
@@ -1420,6 +1440,11 @@
     const top = document.getElementById('stat-total-paid');
     if (top) top.textContent = fmt;
 
+    // Update upcoming count
+    const upcomingCount = document.querySelectorAll('.invoice-row[data-type="upcoming"]').length;
+    const upEl = document.getElementById('stat-upcoming');
+    if (upEl) upEl.textContent = String(upcomingCount);
+
     recalcMonthTotals();
     calcMonthlyTotal();
   }
@@ -1589,7 +1614,6 @@
     const nameId = section === 'subscriptions' ? 'new-sub-name' : 'add-name-' + section;
     const noteId = section === 'subscriptions' ? 'new-sub-note' : 'add-note-' + section;
     const dateId = section === 'subscriptions' ? 'new-sub-date' : 'add-date-' + section;
-    const amtId  = section === 'subscriptions' ? 'new-sub-amt'  : 'add-amt-' + section;
     document.getElementById(formId).classList.add('visible');
     document.getElementById(nameId).value = '';
     document.getElementById(noteId).value = '';
@@ -1597,8 +1621,6 @@
     const today = new Date().toISOString().split('T')[0];
     const dateEl = document.getElementById(dateId);
     if (dateEl) dateEl.value = today;
-    const amtEl = document.getElementById(amtId);
-    if (amtEl) amtEl.value = '';
     document.getElementById(nameId).focus();
   }
 
@@ -1609,9 +1631,39 @@
   }
 
   // Category config: listId, dataType, icon, badge, rowClass, isSub
+  // Emoji matching based on item name
+  function getEmojiForName(name) {
+    const n = name.toLowerCase();
+    const map = [
+      [/netflix/i, '🎬'], [/hulu/i, '📺'], [/disney/i, '🏰'], [/hbo|max/i, '🎥'],
+      [/spotify|music|apple music|tidal|pandora/i, '🎵'], [/youtube/i, '▶️'],
+      [/amazon|aws/i, '📦'], [/uber/i, '🚗'], [/lyft/i, '🚕'], [/doordash|grubhub|uber eats|postmates/i, '🍔'],
+      [/gym|fitness|peloton|planet fitness/i, '💪'], [/doctor|medical|health|pharmacy|cvs|walgreens/i, '🏥'],
+      [/dental|dentist/i, '🦷'], [/insurance/i, '🛡️'],
+      [/electric|power|energy|con edison/i, '⚡'], [/water/i, '💧'], [/gas|heating/i, '🔥'],
+      [/internet|wifi|spectrum|verizon fios|comcast|xfinity/i, '🌐'], [/phone|mobile|t-mobile|at&t|verizon/i, '📱'],
+      [/rent|mortgage|housing/i, '🏠'], [/grocery|whole foods|trader|food|market/i, '🛒'],
+      [/coffee|starbucks|dunkin/i, '☕'], [/restaurant|dining|eat/i, '🍽️'],
+      [/gas station|shell|exxon|bp|fuel/i, '⛽'], [/parking/i, '🅿️'],
+      [/flight|airline|united|delta|jetblue|american air/i, '✈️'], [/hotel|airbnb|marriott|hilton/i, '🏨'],
+      [/adobe|photoshop|creative cloud/i, '🎨'], [/microsoft|office|365/i, '💻'],
+      [/google|workspace/i, '🔍'], [/apple|icloud/i, '🍎'], [/dropbox|storage|cloud/i, '☁️'],
+      [/slack/i, '💬'], [/zoom/i, '📹'], [/github|gitlab/i, '🐙'],
+      [/shopify|stripe|square/i, '💳'], [/paypal|venmo|zelle/i, '💸'],
+      [/clothing|nike|adidas|zara|h&m/i, '👕'], [/shoes|foot/i, '👟'],
+      [/pet|vet|dog|cat/i, '🐾'], [/school|tuition|education|course/i, '🎓'],
+      [/book|kindle|audible/i, '📚'], [/game|playstation|xbox|steam|nintendo/i, '🎮'],
+      [/lawyer|legal|attorney/i, '⚖️'], [/tax/i, '🧾'], [/loan|credit/i, '🏦'],
+      [/subscription/i, '🔄'], [/receipt|invoice/i, '🧾'],
+    ];
+    for (const [re, emoji] of map) {
+      if (re.test(n)) return emoji;
+    }
+    return null;
+  }
+
   const _catConfig = {
-    subscriptions: { listId: 'list-subscriptions', dataType: 'recurring',  icon: '➕', badge: 'badge-sub',     badgeText: 'Monthly',  rowClass: '',        isSub: true  },
-    pending:       { listId: 'list-pending',       dataType: 'pending',    icon: '📌', badge: 'badge-pending', badgeText: 'Pending',  rowClass: 'pending', isSub: false },
+    subscriptions: { listId: 'list-subscriptions', dataType: 'recurring',  icon: '🔄', badge: 'badge-sub',     badgeText: 'Monthly',  rowClass: '',        isSub: true  },
     upcoming:      { listId: 'list-upcoming',       dataType: 'upcoming',   icon: '📅', badge: 'badge-upcoming',badgeText: 'Upcoming', rowClass: 'upcoming',isSub: false },
     paid:          { listId: 'list-paid',           dataType: 'paid',       icon: '💵', badge: 'badge-paid',   badgeText: 'Paid',     rowClass: '',        isSub: false },
     missing:       { listId: 'list-missing',        dataType: 'missing',    icon: '❓', badge: 'badge-no-pdf',  badgeText: 'No Receipt',rowClass: '',       isSub: false },
@@ -1621,14 +1673,12 @@
     const nameId = section === 'subscriptions' ? 'new-sub-name' : 'add-name-' + section;
     const noteId = section === 'subscriptions' ? 'new-sub-note' : 'add-note-' + section;
     const dateId = section === 'subscriptions' ? 'new-sub-date' : 'add-date-' + section;
-    const amtId  = section === 'subscriptions' ? 'new-sub-amt'  : 'add-amt-' + section;
     const name = document.getElementById(nameId).value.trim();
     if (!name) return;
     const note = document.getElementById(noteId).value.trim();
     const date = document.getElementById(dateId)?.value || '';
-    const amt  = parseFloat(document.getElementById(amtId)?.value) || 0;
     const id = 'custom-' + Date.now();
-    const item = { id, name, note, section, date, amount: amt };
+    const item = { id, name, note, section, date, amount: 0 };
 
     const items = getCustomItems();
     items.push(item);
@@ -1695,9 +1745,10 @@
         <button class="attach-btn" onclick="triggerAttach(event,'${item.id}')">📎 Add Docs</button>`;
     }
 
+    const emoji = getEmojiForName(item.name) || cfg.icon;
     row.innerHTML = `
       <div class="row-main">
-        <div class="icon" style="background:#1a1a20;">${cfg.icon}</div>
+        <div class="icon" style="background:#1a1a20;">${emoji}</div>
         <div class="invoice-info">
           <div class="invoice-name">${item.name}</div>
           <div class="invoice-sub">${subText}</div>
@@ -1886,7 +1937,11 @@
   });
 
   // Render user-added custom items from localStorage (all categories)
-  getCustomItems().forEach(item => renderCustomRow(item));
+  getCustomItems().forEach(item => {
+    // Migrate old "pending" items to "subscriptions"
+    if (item.section === 'pending') item.section = 'subscriptions';
+    renderCustomRow(item);
+  });
 
   // Apply cancelled styling + move cancelled rows to bottom
   document.querySelectorAll('#list-subscriptions [data-sub="true"]').forEach(row => {
@@ -1907,11 +1962,12 @@
     if (btn) btn.classList.add('active');
 
     // Hide all normal sections
-    const allSections = ['list-pending','list-upcoming','list-subscriptions','list-paid','list-missing'];
-    const allLabels   = ['section-pending','section-upcoming','section-subscriptions','section-paid','section-missing'];
+    const allSections = ['list-upcoming','list-subscriptions','list-paid','list-missing'];
+    const allLabels   = ['section-upcoming','section-subscriptions','section-paid','section-missing'];
     allSections.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
     allLabels.forEach(cls => { const el = document.querySelector('.' + cls); if (el) el.classList.add('hidden'); });
     document.getElementById('total-row').classList.add('hidden');
+    hideSettings();
 
     // Show dashboard
     document.getElementById('dashboard').classList.add('visible');
@@ -2083,11 +2139,11 @@
   // ── Filter tabs ───────────────────────────────────────────────
   function filter(type, btn) {
     hideDashboard();
+    hideSettings();
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
 
     const sections = {
-      pending:       ['list-pending',       'section-pending'],
       upcoming:      ['list-upcoming',      'section-upcoming'],
       subscriptions: ['list-subscriptions', 'section-subscriptions'],
       paid:          ['list-paid',          'section-paid'],
@@ -2107,6 +2163,72 @@
 
     document.getElementById('total-row').classList.toggle('hidden', type !== 'all' && type !== 'paid');
     closePDF();
+  }
+
+  // ── Settings ──────────────────────────────────────────────────
+  function showSettings(btn) {
+    // Activate tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    // Hide all normal sections
+    const allSections = ['list-upcoming','list-subscriptions','list-paid','list-missing'];
+    const allLabels   = ['section-upcoming','section-subscriptions','section-paid','section-missing'];
+    allSections.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+    allLabels.forEach(cls => { const el = document.querySelector('.' + cls); if (el) el.classList.add('hidden'); });
+    document.getElementById('total-row').classList.add('hidden');
+    hideDashboard();
+    closePDF();
+
+    // Populate account info
+    const user = getCurrentUser();
+    document.getElementById('settings-email').textContent = user?.email || '—';
+    const plan = getUserPlan();
+    const planEl = document.getElementById('settings-plan');
+    if (plan === 'pro') {
+      planEl.textContent = 'PRO';
+      planEl.style.color = '#6366f1';
+    } else {
+      planEl.textContent = 'Free';
+      planEl.style.color = '#94a3b8';
+    }
+
+    // Generate forwarding email based on user ID
+    const uid = user?.id || 'unknown';
+    const shortId = uid.replace(/-/g, '').substring(0, 12);
+    document.getElementById('forward-email').value = shortId + '@receipts.subtrackr.app';
+
+    // Show settings panel
+    document.getElementById('settings-panel').style.display = 'block';
+    document.getElementById('settings-panel').classList.add('visible');
+  }
+
+  function hideSettings() {
+    const panel = document.getElementById('settings-panel');
+    panel.style.display = 'none';
+    panel.classList.remove('visible');
+  }
+
+  function copyForwardEmail() {
+    const input = document.getElementById('forward-email');
+    navigator.clipboard.writeText(input.value).then(() => {
+      const btn = input.nextElementSibling;
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.background = '#22c55e';
+      setTimeout(() => { btn.textContent = orig; btn.style.background = '#6366f1'; }, 2000);
+    });
+  }
+
+  function exportData() {
+    const items = getCustomItems();
+    const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'subtrackr-export-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 </script>
 
@@ -2167,7 +2289,6 @@
         <select id="scan-category">
           <option value="paid">Paid / Receipt</option>
           <option value="subscriptions">Subscription</option>
-          <option value="pending">Pending</option>
           <option value="upcoming">Upcoming</option>
           <option value="missing">Not in Inbox</option>
         </select>
