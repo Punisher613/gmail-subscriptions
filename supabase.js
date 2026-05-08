@@ -2,7 +2,7 @@
 // Replaces localStorage with Supabase for multi-user sync
 
 const SUPABASE_URL = 'https://ycwquunujxvykrlutvfq.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_JGTtgary0oUjl1mXZBsfhw_fbnUZvwM';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inljd3F1dW51anh2eWtybHV0dmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxOTE4NTYsImV4cCI6MjA5Mzc2Nzg1Nn0.Uy2cx5Ma3ISRx_iMbya4wQXB5YBiiQXYW3TbtTonT0U';
 const OWNER_EMAIL  = 'saul@gothaminjury.com';
 const FREE_ITEM_LIMIT = 10;
 
