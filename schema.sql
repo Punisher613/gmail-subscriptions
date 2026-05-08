@@ -48,6 +48,20 @@ create policy "Users see own settings" on item_settings
 create policy "Users see own plan" on user_plans
   for all using (auth.uid() = user_id);
 
+-- Gmail connections (stores refresh token for inbox scanning)
+create table gmail_connections (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade unique not null,
+  google_refresh_token text not null,
+  last_scan_at timestamptz,
+  created_at timestamptz default now()
+);
+
+alter table gmail_connections enable row level security;
+
+create policy "Users see own gmail connection" on gmail_connections
+  for all using (auth.uid() = user_id);
+
 -- Auto-create a free plan when a user signs up
 create or replace function handle_new_user()
 returns trigger as $$

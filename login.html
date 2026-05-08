@@ -496,7 +496,14 @@
     async function handleGoogleLogin() {
       const { error } = await _sb.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/gmail-subscriptions/app.html' }
+        options: {
+          redirectTo: window.location.origin + '/gmail-subscriptions/app.html',
+          scopes: 'https://www.googleapis.com/auth/gmail.readonly',
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
+        }
       });
       if (error) showError(error.message);
     }

@@ -20,6 +20,14 @@ async function initAuth() {
   }
   _currentUser = session.user;
 
+  // Capture Google tokens (only available right after OAuth redirect)
+  if (session.provider_token) {
+    window._googleAccessToken = session.provider_token;
+  }
+  if (session.provider_refresh_token) {
+    await saveGmailConnection(session.provider_refresh_token);
+  }
+
   // Owner always gets pro
   if (_currentUser.email === OWNER_EMAIL) {
     _userPlan = 'pro';
@@ -168,4 +176,27 @@ async function getFiles(id) {
 }
 async function saveFiles(id, files) {
   await saveSetting(id, 'files_json', JSON.stringify(files));
+}
+
+// ── Gmail Connection ──
+async function saveGmailConnection(refreshToken) {
+  const { error } = await _sb.from('gmail_connections').upsert({
+    user_id: _currentUser.id,
+    google_refresh_token: refreshToken
+  }, { onConflict: 'user_id' });
+  if (error) console.error('saveGmailConnection:', error);
+}
+
+async function getGmailConnection() {
+  const { data } = await _sb.from('gmail_connections')
+    .select('*')
+    .eq('user_id', _currentUser.id)
+    .single();
+  return data;
+}
+
+async function updateGmailLastScan() {
+  await _sb.from('gmail_connections')
+    .update({ last_scan_at: new Date().toISOString() })
+    .eq('user_id', _currentUser.id);
 }
