@@ -820,6 +820,180 @@
     .edit-save-btn:hover { background: #2563eb; }
     .edit-cancel-btn { background: #262630; color: #94a3b8; }
     .edit-cancel-btn:hover { background: #334155; }
+
+    /* ── Scan Receipt Modal ── */
+    .scan-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .scan-overlay.visible { display: flex; }
+    .scan-modal {
+      background: #12141e;
+      border: 1px solid #1e2235;
+      border-radius: 20px;
+      width: 440px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 32px 28px;
+      position: relative;
+    }
+    .scan-modal h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .scan-modal .sub {
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .scan-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: #64748b;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .scan-close:hover { color: #fff; }
+
+    .scan-upload-area {
+      border: 2px dashed #262630;
+      border-radius: 14px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .scan-upload-area:hover { border-color: #6366f1; background: rgba(99,102,241,0.04); }
+    .scan-upload-area.has-file { border-color: #22c55e; border-style: solid; }
+    .scan-upload-icon { font-size: 40px; margin-bottom: 12px; }
+    .scan-upload-text { color: #94a3b8; font-size: 14px; margin-bottom: 6px; }
+    .scan-upload-hint { color: #475569; font-size: 12px; }
+    .scan-upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .scan-preview {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 10px;
+      margin-top: 12px;
+      display: none;
+    }
+    .scan-filename {
+      color: #22c55e;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .scan-btn-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .scan-btn-camera, .scan-btn-upload-label {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      border: 1px solid #262630;
+      background: #1a1a24;
+      color: #e2e8f0;
+      transition: all 0.2s;
+    }
+    .scan-btn-camera:hover, .scan-btn-upload-label:hover {
+      border-color: #6366f1;
+      background: rgba(99,102,241,0.06);
+    }
+
+    .scan-processing {
+      display: none;
+      text-align: center;
+      padding: 30px 0;
+    }
+    .scan-processing.visible { display: block; }
+    .scan-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #262630;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .scan-processing p { color: #94a3b8; font-size: 14px; }
+
+    .scan-results {
+      display: none;
+    }
+    .scan-results.visible { display: block; }
+    .scan-results h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .scan-field {
+      margin-bottom: 14px;
+    }
+    .scan-field label {
+      display: block;
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .scan-field input, .scan-field select {
+      width: 100%;
+      background: #0c0e14;
+      border: 1px solid #262630;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+    }
+    .scan-field input:focus, .scan-field select:focus { border-color: #6366f1; }
+    .scan-field-row { display: flex; gap: 10px; }
+    .scan-field-row .scan-field { flex: 1; }
+
+    .scan-save-btn {
+      width: 100%;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .scan-save-btn:hover { background: #4f46e5; }
   </style>
 </head>
 <body>
@@ -835,6 +1009,7 @@
         <div style="display:flex;align-items:center;gap:12px;">
           <span id="user-email" style="color:#64748b;font-size:12px;"></span>
           <span id="plan-badge" style="font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;"></span>
+          <button onclick="openScanModal()" style="background:#6366f1;border:none;color:#fff;font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600;">📷 Scan Receipt</button>
           <button onclick="logout()" style="background:#1e293b;border:1px solid #262630;color:#94a3b8;font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;">Log out</button>
         </div>
       </div>
@@ -2299,6 +2474,230 @@
 
     document.getElementById('total-row').classList.toggle('hidden', type !== 'all' && type !== 'paid');
     closePDF();
+  }
+</script>
+
+<!-- Scan Receipt Modal -->
+<div class="scan-overlay" id="scan-overlay" onclick="if(event.target===this)closeScanModal()">
+  <div class="scan-modal">
+    <button class="scan-close" onclick="closeScanModal()">&times;</button>
+    <h2>Scan a Receipt</h2>
+    <p class="sub">Take a photo or upload an image — we'll extract all the details automatically.</p>
+
+    <div id="scan-step-upload">
+      <div class="scan-btn-row">
+        <button class="scan-btn-camera" onclick="openCamera()">📷 Take Photo</button>
+        <label class="scan-btn-upload-label">
+          📁 Upload File
+          <input type="file" accept="image/*,.pdf" onchange="handleFileSelect(event)" style="display:none">
+        </label>
+      </div>
+
+      <div class="scan-upload-area" id="scan-drop-area">
+        <div class="scan-upload-icon">🧾</div>
+        <div class="scan-upload-text">Drag & drop a receipt here</div>
+        <div class="scan-upload-hint">JPG, PNG, or PDF</div>
+        <input type="file" accept="image/*,.pdf" onchange="handleFileSelect(event)">
+        <img class="scan-preview" id="scan-preview">
+        <div class="scan-filename" id="scan-filename"></div>
+      </div>
+
+      <!-- Hidden camera input -->
+      <input type="file" accept="image/*" capture="environment" id="camera-input" style="display:none" onchange="handleFileSelect(event)">
+
+      <button class="scan-save-btn" id="scan-process-btn" style="display:none" onclick="processReceipt()">Process Receipt</button>
+    </div>
+
+    <div class="scan-processing" id="scan-processing">
+      <div class="scan-spinner"></div>
+      <p>Reading your receipt...</p>
+    </div>
+
+    <div class="scan-results" id="scan-results">
+      <h3>Extracted Details</h3>
+      <div class="scan-field">
+        <label>Vendor / Store</label>
+        <input type="text" id="scan-vendor">
+      </div>
+      <div class="scan-field-row">
+        <div class="scan-field">
+          <label>Date</label>
+          <input type="date" id="scan-date-field">
+        </div>
+        <div class="scan-field">
+          <label>Amount</label>
+          <input type="number" id="scan-amount" step="0.01" min="0" placeholder="0.00">
+        </div>
+      </div>
+      <div class="scan-field">
+        <label>Category</label>
+        <select id="scan-category">
+          <option value="paid">Paid / Receipt</option>
+          <option value="subscriptions">Subscription</option>
+          <option value="pending">Pending</option>
+          <option value="upcoming">Upcoming</option>
+          <option value="missing">Not in Inbox</option>
+        </select>
+      </div>
+      <div class="scan-field">
+        <label>Note</label>
+        <input type="text" id="scan-note" placeholder="Optional note">
+      </div>
+      <button class="scan-save-btn" onclick="saveScanResult()">Add to Tracker</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Scan Receipt Logic ──
+  let _scanFile = null;
+  let _scanBase64 = null;
+
+  function openScanModal() {
+    document.getElementById('scan-overlay').classList.add('visible');
+    resetScanModal();
+  }
+  function closeScanModal() {
+    document.getElementById('scan-overlay').classList.remove('visible');
+    resetScanModal();
+  }
+  function resetScanModal() {
+    _scanFile = null;
+    _scanBase64 = null;
+    document.getElementById('scan-step-upload').style.display = '';
+    document.getElementById('scan-processing').classList.remove('visible');
+    document.getElementById('scan-results').classList.remove('visible');
+    document.getElementById('scan-process-btn').style.display = 'none';
+    document.getElementById('scan-preview').style.display = 'none';
+    document.getElementById('scan-filename').style.display = 'none';
+    document.getElementById('scan-drop-area').classList.remove('has-file');
+  }
+
+  function openCamera() {
+    document.getElementById('camera-input').click();
+  }
+
+  function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    _scanFile = file;
+
+    const dropArea = document.getElementById('scan-drop-area');
+    dropArea.classList.add('has-file');
+
+    const fname = document.getElementById('scan-filename');
+    fname.textContent = file.name;
+    fname.style.display = 'block';
+
+    const preview = document.getElementById('scan-preview');
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        _scanBase64 = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      preview.style.display = 'none';
+      // For PDFs, read as base64
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        _scanBase64 = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('scan-process-btn').style.display = '';
+  }
+
+  // Drag & drop
+  const dropArea = document.getElementById('scan-drop-area');
+  if (dropArea) {
+    dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.style.borderColor = '#6366f1'; });
+    dropArea.addEventListener('dragleave', () => { if (!_scanFile) dropArea.style.borderColor = '#262630'; });
+    dropArea.addEventListener('drop', e => {
+      e.preventDefault();
+      if (e.dataTransfer.files.length) {
+        handleFileSelect({ target: { files: e.dataTransfer.files } });
+      }
+    });
+  }
+
+  async function processReceipt() {
+    if (!_scanBase64) return;
+
+    document.getElementById('scan-step-upload').style.display = 'none';
+    document.getElementById('scan-processing').classList.add('visible');
+
+    try {
+      // Call Supabase Edge Function to process with Claude Vision
+      const response = await fetch(SUPABASE_URL + '/functions/v1/parse-receipt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          image: _scanBase64,
+          filename: _scanFile.name
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        alert('Error processing receipt: ' + result.error);
+        resetScanModal();
+        return;
+      }
+
+      // Fill in extracted fields
+      document.getElementById('scan-vendor').value = result.vendor || '';
+      document.getElementById('scan-date-field').value = result.date || new Date().toISOString().split('T')[0];
+      document.getElementById('scan-amount').value = result.amount || '';
+      document.getElementById('scan-note').value = result.note || '';
+      if (result.category) document.getElementById('scan-category').value = result.category;
+
+    } catch (err) {
+      console.error('Receipt processing error:', err);
+      // Fallback: show empty form for manual entry
+      document.getElementById('scan-date-field').value = new Date().toISOString().split('T')[0];
+    }
+
+    document.getElementById('scan-processing').classList.remove('visible');
+    document.getElementById('scan-results').classList.add('visible');
+  }
+
+  function saveScanResult() {
+    const name = document.getElementById('scan-vendor').value.trim();
+    if (!name) { alert('Please enter a vendor name'); return; }
+
+    const section = document.getElementById('scan-category').value;
+    const date = document.getElementById('scan-date-field').value;
+    const amount = parseFloat(document.getElementById('scan-amount').value) || 0;
+    const note = document.getElementById('scan-note').value.trim();
+
+    const id = 'custom-' + Date.now();
+    const item = { id, name, note, section, date, amount };
+
+    const items = getCustomItems();
+    items.push(item);
+    saveCustomItems(items);
+
+    renderCustomRow(item);
+    recalcTotal();
+    calcMonthlyTotal();
+
+    // If we have an image file, save it as an attachment
+    if (_scanBase64 && _scanFile) {
+      const files = getFiles(id);
+      files.push({ name: _scanFile.name, url: _scanBase64 });
+      saveFiles(id, files);
+      renderChips(id);
+    }
+
+    closeScanModal();
   }
 </script>
 
