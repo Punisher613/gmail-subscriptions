@@ -1,16 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SubTrackr — Track Subscriptions & Receipts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #0b0f19;
+      --bg2: #111827;
+      --bg3: #1f2937;
+      --border: #1f2937;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --accent-glow: rgba(99,102,241,0.15);
+      --card: #111827;
+      --card-border: #1f2937;
+      --green: #22c55e;
+      --red: #475569;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg2: #ffffff;
+      --bg3: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text2: #475569;
+      --text3: #94a3b8;
+      --accent: #6366f1;
+      --accent2: #4f46e5;
+      --accent-glow: rgba(99,102,241,0.08);
+      --card: #ffffff;
+      --card-border: #e2e8f0;
+      --green: #16a34a;
+      --red: #cbd5e1;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0c0e14;
-      color: #e2e8f0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
     }
 
     /* Nav */
@@ -18,131 +54,202 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 40px;
-      border-bottom: 1px solid #1a1e2e;
+      padding: 18px 40px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
     }
-    .logo { font-size: 20px; font-weight: 700; color: #fff; }
-    .logo span { color: #3b82f6; }
-    .nav-links a {
-      color: #94a3b8;
+    .logo { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .nav-right a {
+      color: var(--text2);
       text-decoration: none;
-      margin-left: 28px;
       font-size: 14px;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: #fff; }
-    .nav-links .btn-login {
-      background: #1e293b;
-      color: #e2e8f0;
-      padding: 8px 20px;
+      font-weight: 500;
+      padding: 8px 16px;
       border-radius: 8px;
+      transition: all 0.2s;
     }
-    .nav-links .btn-login:hover { background: #334155; }
-    .nav-links .btn-signup {
-      background: #3b82f6;
+    .nav-right a:hover { color: var(--text); background: var(--bg3); }
+    .nav-right .btn-login {
+      background: var(--bg3);
+      color: var(--text);
+    }
+    .nav-right .btn-signup {
+      background: var(--accent);
       color: #fff;
-      padding: 8px 20px;
-      border-radius: 8px;
     }
-    .nav-links .btn-signup:hover { background: #2563eb; }
+    .nav-right .btn-signup:hover { background: var(--accent2); color: #fff; }
+
+    /* Theme toggle */
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      margin-right: 8px;
+    }
+    .theme-toggle:hover { background: var(--bg3); color: var(--text); }
 
     /* Hero */
     .hero {
       text-align: center;
-      padding: 100px 20px 60px;
-      max-width: 700px;
+      padding: 120px 20px 80px;
+      max-width: 720px;
       margin: 0 auto;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge-new {
+      display: inline-block;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      color: var(--accent2);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      letter-spacing: 0.3px;
     }
     .hero h1 {
-      font-size: 48px;
-      font-weight: 800;
-      line-height: 1.15;
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.1;
       margin-bottom: 20px;
-      color: #fff;
+      letter-spacing: -1.5px;
     }
-    .hero h1 span { color: #3b82f6; }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .hero p {
       font-size: 18px;
-      color: #94a3b8;
-      line-height: 1.6;
-      margin-bottom: 36px;
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .hero-btns {
-      display: flex;
-      gap: 14px;
-      justify-content: center;
-    }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; }
     .btn-primary {
-      background: #3b82f6;
+      background: var(--accent);
       color: #fff;
       padding: 14px 32px;
-      border-radius: 10px;
-      font-size: 16px;
+      border-radius: 12px;
+      font-size: 15px;
       font-weight: 600;
       text-decoration: none;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      box-shadow: 0 4px 24px rgba(99,102,241,0.25);
     }
-    .btn-primary:hover { background: #2563eb; }
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
     .btn-secondary {
-      background: #1e293b;
-      color: #e2e8f0;
+      background: var(--bg3);
+      color: var(--text);
       padding: 14px 32px;
-      border-radius: 10px;
-      font-size: 16px;
+      border-radius: 12px;
+      font-size: 15px;
       font-weight: 600;
       text-decoration: none;
-      transition: background 0.2s;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
     }
-    .btn-secondary:hover { background: #334155; }
+    .btn-secondary:hover { background: var(--card); border-color: var(--text3); }
+
+    /* Logos/social proof */
+    .social-proof {
+      text-align: center;
+      padding: 40px 20px 0;
+      color: var(--text3);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
 
     /* Features */
+    .section-title {
+      text-align: center;
+      padding: 80px 20px 40px;
+    }
+    .section-title h2 {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .section-title p {
+      color: var(--text2);
+      font-size: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
     .features {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      max-width: 900px;
-      margin: 80px auto;
+      gap: 20px;
+      max-width: 960px;
+      margin: 0 auto 80px;
       padding: 0 20px;
     }
     .feature-card {
-      background: #12141e;
-      border: 1px solid #1e2235;
-      border-radius: 14px;
-      padding: 30px 24px;
-      text-align: center;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: all 0.2s;
     }
-    .feature-card .icon {
-      font-size: 36px;
+    .feature-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--accent-glow);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
       margin-bottom: 16px;
     }
     .feature-card h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
     .feature-card p {
       font-size: 13px;
-      color: #64748b;
-      line-height: 1.5;
+      color: var(--text2);
+      line-height: 1.6;
     }
 
     /* Pricing */
-    .pricing-section {
-      text-align: center;
-      padding: 80px 20px;
-    }
-    .pricing-section h2 {
-      font-size: 32px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 12px;
-    }
-    .pricing-section > p {
-      color: #64748b;
-      margin-bottom: 48px;
-      font-size: 16px;
-    }
+    .pricing-section { padding: 0 20px 100px; }
     .pricing-cards {
       display: flex;
       gap: 24px;
@@ -150,109 +257,87 @@
       flex-wrap: wrap;
     }
     .price-card {
-      background: #12141e;
-      border: 1px solid #1e2235;
-      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
       padding: 36px 32px;
-      width: 320px;
+      width: 340px;
       text-align: left;
+      transition: all 0.2s;
     }
+    .price-card:hover { border-color: var(--text3); }
     .price-card.featured {
-      border-color: #3b82f6;
+      border-color: var(--accent);
+      box-shadow: 0 0 40px rgba(99,102,241,0.1);
       position: relative;
     }
     .price-card.featured::before {
-      content: 'MOST POPULAR';
+      content: 'POPULAR';
       position: absolute;
-      top: -12px;
+      top: -11px;
       left: 50%;
       transform: translateX(-50%);
-      background: #3b82f6;
+      background: var(--accent);
       color: #fff;
       font-size: 10px;
       font-weight: 700;
-      padding: 4px 14px;
+      padding: 4px 16px;
       border-radius: 20px;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
-    .price-card h3 {
-      font-size: 18px;
-      color: #fff;
-      margin-bottom: 8px;
+    .price-tier {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
     }
     .price-card .price {
-      font-size: 40px;
-      font-weight: 800;
-      color: #fff;
+      font-size: 44px;
+      font-weight: 900;
+      letter-spacing: -2px;
       margin-bottom: 4px;
     }
-    .price-card .price span {
-      font-size: 16px;
-      font-weight: 400;
-      color: #64748b;
-    }
-    .price-card .price-desc {
-      color: #64748b;
-      font-size: 13px;
-      margin-bottom: 24px;
-    }
-    .price-card ul {
-      list-style: none;
-      margin-bottom: 28px;
-    }
-    .price-card li {
-      font-size: 14px;
-      color: #94a3b8;
-      padding: 6px 0;
-    }
-    .price-card li::before {
-      content: '\2713';
-      color: #22c55e;
-      margin-right: 10px;
-      font-weight: 700;
-    }
-    .price-card li.disabled {
-      color: #334155;
-    }
-    .price-card li.disabled::before {
-      content: '\2717';
-      color: #334155;
-    }
+    .price-card .price span { font-size: 16px; font-weight: 400; color: var(--text2); letter-spacing: 0; }
+    .price-card .price-desc { color: var(--text3); font-size: 13px; margin-bottom: 28px; }
+    .price-card ul { list-style: none; margin-bottom: 28px; }
+    .price-card li { font-size: 14px; color: var(--text2); padding: 7px 0; display: flex; align-items: center; gap: 10px; }
+    .check { color: var(--green); font-weight: 700; font-size: 14px; }
+    .x-mark { color: var(--red); font-weight: 700; font-size: 14px; }
     .price-card .btn-plan {
       display: block;
       text-align: center;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 13px;
+      border-radius: 12px;
       font-size: 14px;
       font-weight: 600;
       text-decoration: none;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
-    .btn-plan-free {
-      background: #1e293b;
-      color: #e2e8f0;
-    }
-    .btn-plan-free:hover { background: #334155; }
-    .btn-plan-pro {
-      background: #3b82f6;
-      color: #fff;
-    }
-    .btn-plan-pro:hover { background: #2563eb; }
+    .btn-plan-free { background: var(--bg3); color: var(--text); }
+    .btn-plan-free:hover { background: var(--border); }
+    .btn-plan-pro { background: var(--accent); color: #fff; box-shadow: 0 4px 20px rgba(99,102,241,0.2); }
+    .btn-plan-pro:hover { background: var(--accent2); }
 
     /* Footer */
     footer {
       text-align: center;
       padding: 40px 20px;
-      border-top: 1px solid #1a1e2e;
-      color: #334155;
+      border-top: 1px solid var(--border);
+      color: var(--text3);
       font-size: 13px;
     }
+    footer a { color: var(--text2); text-decoration: none; margin: 0 12px; }
+    footer a:hover { color: var(--text); }
 
     @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
       .features { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 32px; }
+      .hero { padding: 80px 20px 60px; }
+      .hero h1 { font-size: 34px; }
       .pricing-cards { flex-direction: column; align-items: center; }
-      .nav-links a { margin-left: 14px; font-size: 12px; }
+      .nav-right a.nav-link-text { display: none; }
     }
   </style>
 </head>
@@ -260,85 +345,93 @@
 
   <nav>
     <div class="logo">Sub<span>Trackr</span></div>
-    <div class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#pricing">Pricing</a>
+    <div class="nav-right">
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Toggle theme"></button>
+      <a href="#features" class="nav-link-text">Features</a>
+      <a href="#pricing" class="nav-link-text">Pricing</a>
       <a href="login.html" class="btn-login">Log in</a>
       <a href="login.html#signup" class="btn-signup">Sign up free</a>
     </div>
   </nav>
 
   <section class="hero">
-    <h1>Take control of your <span>subscriptions</span> and receipts</h1>
-    <p>Track every recurring charge, store receipts, and see exactly where your money goes — all in one dashboard.</p>
+    <div class="badge-new">New — Now with dashboard reports</div>
+    <h1>Know exactly where your <span class="gradient">money goes</span></h1>
+    <p>Track subscriptions, store receipts, and get spending insights — all in one clean dashboard that syncs across every device.</p>
     <div class="hero-btns">
       <a href="login.html#signup" class="btn-primary">Get started free</a>
-      <a href="#pricing" class="btn-secondary">See pricing</a>
+      <a href="#pricing" class="btn-secondary">View pricing</a>
     </div>
   </section>
 
-  <section class="features" id="features">
+  <div class="section-title" id="features">
+    <h2>Everything you need</h2>
+    <p>Simple tools to take control of your finances.</p>
+  </div>
+  <section class="features">
     <div class="feature-card">
-      <div class="icon">📊</div>
+      <div class="feature-icon">📊</div>
       <h3>Dashboard Reports</h3>
-      <p>See monthly spending trends, subscription breakdowns, and top expenses at a glance.</p>
+      <p>Monthly spending trends, subscription breakdowns, and top expenses at a glance.</p>
     </div>
     <div class="feature-card">
-      <div class="icon">🔄</div>
+      <div class="feature-icon">🔄</div>
       <h3>Subscription Tracking</h3>
-      <p>Monitor active subscriptions, next bill dates, and easily cancel what you don't need.</p>
+      <p>Monitor active subs, next bill dates, and easily toggle off what you don't need.</p>
     </div>
     <div class="feature-card">
-      <div class="icon">🧾</div>
+      <div class="feature-icon">🧾</div>
       <h3>Receipt Storage</h3>
-      <p>Attach PDFs and documents to any charge. Everything organized by month.</p>
+      <p>Attach PDFs and documents to any charge. Organized automatically by month.</p>
     </div>
     <div class="feature-card">
-      <div class="icon">📱</div>
+      <div class="feature-icon">📱</div>
       <h3>Works Everywhere</h3>
-      <p>Use it on your Mac, PC, phone, or tablet. Your data syncs across all devices.</p>
+      <p>Mac, PC, phone, tablet — your data syncs instantly across all your devices.</p>
     </div>
     <div class="feature-card">
-      <div class="icon">🔒</div>
+      <div class="feature-icon">🔒</div>
       <h3>Secure & Private</h3>
-      <p>Your financial data is encrypted and only accessible by you. We never sell your data.</p>
+      <p>Your financial data is encrypted and only accessible by you. We never sell data.</p>
     </div>
     <div class="feature-card">
-      <div class="icon">⚡</div>
+      <div class="feature-icon">⚡</div>
       <h3>Instant Setup</h3>
-      <p>No app to install. Sign up and start tracking in under a minute.</p>
+      <p>No app to install. Create an account and start tracking in under a minute.</p>
     </div>
   </section>
 
-  <section class="pricing-section" id="pricing">
-    <h2>Simple pricing</h2>
-    <p>Start free, upgrade when you need more.</p>
+  <div class="section-title" id="pricing">
+    <h2>Simple, transparent pricing</h2>
+    <p>Start free. Upgrade when you're ready.</p>
+  </div>
+  <section class="pricing-section">
     <div class="pricing-cards">
       <div class="price-card">
-        <h3>Free</h3>
+        <div class="price-tier">Starter</div>
         <div class="price">$0<span>/mo</span></div>
-        <div class="price-desc">For personal use</div>
+        <div class="price-desc">Free forever</div>
         <ul>
-          <li>Up to 10 tracked items</li>
-          <li>Manual charge entry</li>
-          <li>Subscription tracking</li>
-          <li class="disabled">Dashboard & reports</li>
-          <li class="disabled">File attachments</li>
-          <li class="disabled">Priority support</li>
+          <li><span class="check">&#10003;</span> Up to 10 tracked items</li>
+          <li><span class="check">&#10003;</span> Manual charge entry</li>
+          <li><span class="check">&#10003;</span> Subscription tracking</li>
+          <li><span class="x-mark">&#10005;</span> Dashboard & reports</li>
+          <li><span class="x-mark">&#10005;</span> File attachments</li>
+          <li><span class="x-mark">&#10005;</span> Priority support</li>
         </ul>
-        <a href="login.html#signup" class="btn-plan btn-plan-free">Start free</a>
+        <a href="login.html#signup" class="btn-plan btn-plan-free">Get started</a>
       </div>
       <div class="price-card featured">
-        <h3>Pro</h3>
+        <div class="price-tier">Pro</div>
         <div class="price">$9.99<span>/mo</span></div>
-        <div class="price-desc">For power users</div>
+        <div class="price-desc">Everything, unlimited</div>
         <ul>
-          <li>Unlimited tracked items</li>
-          <li>Manual charge entry</li>
-          <li>Subscription tracking</li>
-          <li>Dashboard & reports</li>
-          <li>File attachments</li>
-          <li>Priority support</li>
+          <li><span class="check">&#10003;</span> Unlimited tracked items</li>
+          <li><span class="check">&#10003;</span> Manual charge entry</li>
+          <li><span class="check">&#10003;</span> Subscription tracking</li>
+          <li><span class="check">&#10003;</span> Dashboard & reports</li>
+          <li><span class="check">&#10003;</span> File attachments</li>
+          <li><span class="check">&#10003;</span> Priority support</li>
         </ul>
         <a href="login.html#signup" class="btn-plan btn-plan-pro">Start 14-day free trial</a>
       </div>
@@ -346,8 +439,19 @@
   </section>
 
   <footer>
-    &copy; 2026 SubTrackr. All rights reserved.
+    <p>&copy; 2026 SubTrackr. All rights reserved.</p>
   </footer>
+
+  <script>
+    function getTheme() { return localStorage.getItem('theme') || 'dark'; }
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('theme', t);
+      document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() { setTheme(getTheme() === 'dark' ? 'light' : 'dark'); }
+    setTheme(getTheme());
+  </script>
 
 </body>
 </html>

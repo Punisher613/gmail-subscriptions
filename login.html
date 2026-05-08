@@ -1,124 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SubTrackr — Log in</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #0b0f19;
+      --bg2: #111827;
+      --bg3: #1f2937;
+      --border: #1f2937;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --accent-glow: rgba(99,102,241,0.15);
+      --card: #111827;
+      --card-border: #1f2937;
+      --input-bg: #0b0f19;
+      --error-bg: #1c1017;
+      --error-border: #7f1d1d;
+      --error-text: #fca5a5;
+      --success-bg: #0c1a17;
+      --success-border: #14532d;
+      --success-text: #86efac;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg2: #ffffff;
+      --bg3: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text2: #475569;
+      --text3: #94a3b8;
+      --accent: #6366f1;
+      --accent2: #4f46e5;
+      --accent-glow: rgba(99,102,241,0.08);
+      --card: #ffffff;
+      --card-border: #e2e8f0;
+      --input-bg: #f8fafc;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #dc2626;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #16a34a;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0c0e14;
-      color: #e2e8f0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Glow background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
     }
 
     .auth-container {
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       padding: 20px;
+      position: relative;
+      z-index: 1;
     }
 
-    .logo {
-      text-align: center;
-      font-size: 24px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 36px;
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
     }
-    .logo span { color: #3b82f6; }
+    .logo { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
     .logo a { text-decoration: none; color: inherit; }
 
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover { background: var(--bg3); }
+
     .auth-card {
-      background: #12141e;
-      border: 1px solid #1e2235;
-      border-radius: 16px;
-      padding: 32px 28px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+      transition: background 0.3s, border-color 0.3s;
     }
 
-    .auth-card h2 {
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-    .auth-card .sub {
-      color: #64748b;
-      font-size: 14px;
-      margin-bottom: 28px;
-    }
+    .auth-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .auth-card .sub { color: var(--text2); font-size: 14px; margin-bottom: 28px; }
 
     .tab-row {
       display: flex;
-      gap: 0;
+      gap: 4px;
       margin-bottom: 28px;
-      border-bottom: 1px solid #1e2235;
+      background: var(--bg3);
+      border-radius: 12px;
+      padding: 4px;
     }
     .tab-btn {
       flex: 1;
       background: none;
       border: none;
-      color: #64748b;
+      color: var(--text2);
       font-size: 14px;
       font-weight: 600;
       padding: 10px 0;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
+      border-radius: 8px;
       transition: all 0.2s;
     }
     .tab-btn.active {
-      color: #3b82f6;
-      border-bottom-color: #3b82f6;
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    [data-theme="dark"] .tab-btn.active {
+      background: var(--bg);
     }
 
-    .form-group {
-      margin-bottom: 18px;
-    }
+    .form-group { margin-bottom: 18px; }
     .form-group label {
       display: block;
       font-size: 13px;
-      color: #94a3b8;
+      color: var(--text2);
       margin-bottom: 6px;
       font-weight: 500;
     }
     .form-group input {
       width: 100%;
-      background: #0c0e14;
-      border: 1px solid #262630;
-      border-radius: 8px;
-      padding: 11px 14px;
-      color: #e2e8f0;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
       font-size: 14px;
+      font-family: inherit;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .form-group input:focus { border-color: #3b82f6; }
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .form-group input::placeholder { color: var(--text3); }
 
     .btn-submit {
       width: 100%;
-      background: #3b82f6;
+      background: var(--accent);
       color: #fff;
       border: none;
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 12px;
+      padding: 13px;
       font-size: 15px;
       font-weight: 600;
+      font-family: inherit;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
       margin-top: 6px;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.2);
     }
-    .btn-submit:hover { background: #2563eb; }
-    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-submit:hover { background: var(--accent2); transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
     .divider {
       text-align: center;
-      color: #334155;
+      color: var(--text3);
       font-size: 12px;
-      margin: 20px 0;
+      font-weight: 500;
+      margin: 22px 0;
       position: relative;
     }
     .divider::before, .divider::after {
@@ -127,40 +209,46 @@
       top: 50%;
       width: 40%;
       height: 1px;
-      background: #1e2235;
+      background: var(--border);
     }
     .divider::before { left: 0; }
     .divider::after { right: 0; }
 
     .btn-google {
       width: 100%;
-      background: #1e293b;
-      color: #e2e8f0;
-      border: 1px solid #262630;
-      border-radius: 10px;
-      padding: 11px;
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
       font-size: 14px;
       font-weight: 500;
+      font-family: inherit;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
-    .btn-google:hover { background: #334155; }
+    .btn-google:hover { background: var(--card); border-color: var(--text3); }
+    .btn-google svg { width: 18px; height: 18px; }
 
     .error-msg {
-      background: #1c1017;
-      border: 1px solid #7f1d1d;
-      color: #fca5a5;
-      border-radius: 8px;
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+      border-radius: 10px;
       padding: 10px 14px;
       font-size: 13px;
       margin-bottom: 16px;
       display: none;
     }
     .success-msg {
-      background: #0c1a17;
-      border: 1px solid #14532d;
-      color: #86efac;
-      border-radius: 8px;
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+      border-radius: 10px;
       padding: 10px 14px;
       font-size: 13px;
       margin-bottom: 16px;
@@ -171,31 +259,39 @@
       display: block;
       text-align: right;
       font-size: 12px;
-      color: #3b82f6;
+      color: var(--accent);
       text-decoration: none;
       margin-top: -10px;
       margin-bottom: 18px;
+      font-weight: 500;
     }
     .forgot-link:hover { text-decoration: underline; }
 
     .back-link {
       display: block;
       text-align: center;
-      color: #64748b;
+      color: var(--text3);
       font-size: 13px;
       margin-top: 20px;
       text-decoration: none;
+      font-weight: 500;
     }
-    .back-link:hover { color: #94a3b8; }
+    .back-link:hover { color: var(--text2); }
 
-    /* Reset password form (hidden by default) */
     #reset-form { display: none; }
+
+    @media (max-width: 480px) {
+      .auth-card { padding: 28px 22px; }
+    }
   </style>
 </head>
 <body>
 
   <div class="auth-container">
-    <div class="logo"><a href="landing.html">Sub<span>Trackr</span></a></div>
+    <div class="top-bar">
+      <div class="logo"><a href="landing.html">Sub<span>Trackr</span></a></div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Toggle theme"></button>
+    </div>
 
     <!-- Login / Signup Card -->
     <div class="auth-card" id="auth-card">
@@ -210,12 +306,12 @@
       <!-- Login Form -->
       <form id="login-form" onsubmit="handleLogin(event)">
         <div class="form-group">
-          <label>Email</label>
+          <label>Email address</label>
           <input type="email" id="login-email" required placeholder="you@example.com">
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="login-password" required placeholder="Your password">
+          <input type="password" id="login-password" required placeholder="Enter your password">
         </div>
         <a href="#" class="forgot-link" onclick="showReset(event)">Forgot password?</a>
         <button type="submit" class="btn-submit" id="login-btn">Log in</button>
@@ -228,7 +324,7 @@
           <input type="text" id="signup-name" required placeholder="John Doe">
         </div>
         <div class="form-group">
-          <label>Email</label>
+          <label>Email address</label>
           <input type="email" id="signup-email" required placeholder="you@example.com">
         </div>
         <div class="form-group">
@@ -239,7 +335,10 @@
       </form>
 
       <div class="divider">or</div>
-      <button class="btn-google" onclick="handleGoogleLogin()">Continue with Google</button>
+      <button class="btn-google" onclick="handleGoogleLogin()">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
     </div>
 
     <!-- Reset Password Card -->
@@ -250,7 +349,7 @@
       <div class="success-msg" id="reset-success"></div>
       <form onsubmit="handleReset(event)">
         <div class="form-group">
-          <label>Email</label>
+          <label>Email address</label>
           <input type="email" id="reset-email" required placeholder="you@example.com">
         </div>
         <button type="submit" class="btn-submit">Send reset link</button>
@@ -262,8 +361,17 @@
   </div>
 
   <script>
+    // ── Theme ──
+    function getTheme() { return localStorage.getItem('theme') || 'dark'; }
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('theme', t);
+      document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() { setTheme(getTheme() === 'dark' ? 'light' : 'dark'); }
+    setTheme(getTheme());
+
     // ── Supabase config ──
-    // REPLACE these with your Supabase project values
     const SUPABASE_URL = 'https://ycwquunujxvykrlutvfq.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inljd3F1dW51anh2eWtybHV0dmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxOTE4NTYsImV4cCI6MjA5Mzc2Nzg1Nn0.Uy2cx5Ma3ISRx_iMbya4wQXB5YBiiQXYW3TbtTonT0U';
     const OWNER_EMAIL  = 'saul@gothaminjury.com';
@@ -292,8 +400,6 @@
         document.getElementById('tab-signup').classList.add('active');
       }
     }
-
-    // Auto-switch to signup if hash is #signup
     if (window.location.hash === '#signup') showTab('signup');
 
     // ── Reset password view ──
@@ -332,16 +438,20 @@
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
 
-      const { data, error } = await _sb.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        showError(error.message);
+      try {
+        const { data, error } = await _sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          showError(error.message);
+          btn.disabled = false;
+          btn.textContent = 'Log in';
+          return;
+        }
+        window.location.href = 'app.html';
+      } catch (err) {
+        showError('Connection error. Please try again.');
         btn.disabled = false;
         btn.textContent = 'Log in';
-        return;
       }
-
-      window.location.href = 'app.html';
     }
 
     // ── Signup ──
@@ -355,29 +465,38 @@
       const email = document.getElementById('signup-email').value.trim();
       const password = document.getElementById('signup-password').value;
 
-      const { data, error } = await _sb.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: name } }
-      });
-
-      if (error) {
-        showError(error.message);
+      try {
+        const { data, error } = await _sb.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: name } }
+        });
+        if (error) {
+          showError(error.message);
+          btn.disabled = false;
+          btn.textContent = 'Create account';
+          return;
+        }
+        // If session exists, redirect directly (email confirmation disabled)
+        if (data.session) {
+          window.location.href = 'app.html';
+          return;
+        }
+        showSuccess('Account created! Check your email to confirm, then log in.');
         btn.disabled = false;
         btn.textContent = 'Create account';
-        return;
+      } catch (err) {
+        showError('Connection error. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Create account';
       }
-
-      showSuccess('Account created! Check your email to confirm, then log in.');
-      btn.disabled = false;
-      btn.textContent = 'Create account';
     }
 
     // ── Google OAuth ──
     async function handleGoogleLogin() {
       const { error } = await _sb.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/app.html' }
+        options: { redirectTo: window.location.origin + '/gmail-subscriptions/app.html' }
       });
       if (error) showError(error.message);
     }
@@ -387,7 +506,7 @@
       e.preventDefault();
       const email = document.getElementById('reset-email').value.trim();
       const { error } = await _sb.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/login.html'
+        redirectTo: window.location.origin + '/gmail-subscriptions/login.html'
       });
       if (error) {
         document.getElementById('reset-error').textContent = error.message;
