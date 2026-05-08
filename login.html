@@ -268,11 +268,11 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inljd3F1dW51anh2eWtybHV0dmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxOTE4NTYsImV4cCI6MjA5Mzc2Nzg1Nn0.Uy2cx5Ma3ISRx_iMbya4wQXB5YBiiQXYW3TbtTonT0U';
     const OWNER_EMAIL  = 'saul@gothaminjury.com';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ── Check if already logged in ──
     (async function() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await _sb.auth.getSession();
       if (session) window.location.href = 'app.html';
     })();
 
@@ -332,7 +332,7 @@
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await _sb.auth.signInWithPassword({ email, password });
 
       if (error) {
         showError(error.message);
@@ -355,7 +355,7 @@
       const email = document.getElementById('signup-email').value.trim();
       const password = document.getElementById('signup-password').value;
 
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await _sb.auth.signUp({
         email,
         password,
         options: { data: { full_name: name } }
@@ -375,7 +375,7 @@
 
     // ── Google OAuth ──
     async function handleGoogleLogin() {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await _sb.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: window.location.origin + '/app.html' }
       });
@@ -386,7 +386,7 @@
     async function handleReset(e) {
       e.preventDefault();
       const email = document.getElementById('reset-email').value.trim();
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await _sb.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + '/login.html'
       });
       if (error) {
