@@ -88,7 +88,7 @@ Return ONLY the JSON object, no other text.`;
           const claudeData = await claudeRes.json();
           if (claudeData.error) {
             console.error("Claude error for:", email.subject, claudeData.error);
-            return null;
+            return { _debug_error: 'Claude API: ' + (claudeData.error.message || JSON.stringify(claudeData.error)), _debug_subject: email.subject };
           }
 
           const text = claudeData.content?.[0]?.text || "{}";
