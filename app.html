@@ -2629,6 +2629,7 @@
         });
         const parseData = await parseRes.json();
         console.log('Gmail parse batch result:', parseData);
+        if (parseData.debug) parseData.debug.forEach(d => console.log('  Parse debug:', d));
         if (parseData.items) allItems.push(...parseData.items);
       }
 

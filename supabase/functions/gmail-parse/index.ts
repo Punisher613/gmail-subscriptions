@@ -112,15 +112,20 @@ Return ONLY the JSON object, no other text.`;
           };
         } catch (err) {
           console.error("Error parsing email:", email.subject, err);
-          return null;
+          return { _debug_error: err.message, _debug_subject: email.subject };
         }
       })
     );
 
-    // Filter out nulls (non-financial or failed parses)
-    const items = results.filter((r: any) => r !== null);
+    // Separate debug info from real items
+    const items = results.filter((r: any) => r !== null && !r._debug_error);
+    const debug = results.map((r: any, i: number) => {
+      if (r === null) return { subject: emails[i]?.subject, result: 'not_financial' };
+      if (r._debug_error) return { subject: r._debug_subject, error: r._debug_error };
+      return { subject: r.source_subject, result: 'financial', vendor: r.vendor };
+    });
 
-    return new Response(JSON.stringify({ items }), {
+    return new Response(JSON.stringify({ items, debug }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
