@@ -2594,6 +2594,9 @@
 
       const scanData = await scanRes.json();
       console.log('Gmail scan response:', scanData);
+      if (scanData.emails) {
+        scanData.emails.forEach((e, i) => console.log(`Email ${i}: "${e.subject}" from ${e.from} | body length: ${e.body_text?.length || 0}`));
+      }
       if (scanData.error) {
         showGmailError(scanData.error);
         return;

@@ -34,31 +34,37 @@ serve(async (req) => {
     const results = await Promise.all(
       emails.map(async (email: any) => {
         try {
-          const prompt = `Analyze this email and determine if it contains a receipt, invoice, payment confirmation, or subscription charge.
+          console.log(`Parsing email: "${email.subject}" from ${email.from}, body length: ${email.body_text?.length || 0}`);
 
-If it IS a financial/receipt email, extract the details and return ONLY a JSON object:
+          const bodyContent = email.body_text && email.body_text.length > 10
+            ? email.body_text
+            : "(Email body could not be extracted)";
+
+          const prompt = `You are analyzing an email to find financial transactions. Be GENEROUS in classifying — if the email mentions any dollar amount, price, charge, payment, order, or subscription, classify it as financial.
+
+If it contains ANY financial information (receipt, invoice, payment, order, charge, subscription, bill), extract details and return ONLY a JSON object:
 {
   "is_financial": true,
   "vendor": "Company or store name",
   "date": "YYYY-MM-DD",
   "amount": 0.00,
-  "note": "Brief description (2-4 words max, e.g. 'Monthly subscription', 'Online order')",
+  "note": "Brief description (2-4 words max)",
   "category": "paid"
 }
 
-For category, use:
+For category:
 - "paid" for completed purchases, order confirmations, payment receipts
 - "subscriptions" for recurring subscription charges, membership renewals
-- "upcoming" for unpaid invoices, payment reminders, upcoming charges
+- "upcoming" for unpaid invoices, payment reminders
 
-If the email is NOT financial (newsletters, marketing, shipping updates without prices, etc.), return ONLY:
+If the email has absolutely NO financial content (pure newsletters, social notifications, etc.), return:
 { "is_financial": false }
 
 Email subject: ${email.subject}
 From: ${email.from}
 Date: ${email.date}
 Body:
-${email.body_text}
+${bodyContent}
 
 Return ONLY the JSON object, no other text.`;
 
@@ -81,15 +87,19 @@ Return ONLY the JSON object, no other text.`;
 
           const claudeData = await claudeRes.json();
           if (claudeData.error) {
-            console.error("Claude error:", claudeData.error);
+            console.error("Claude error for:", email.subject, claudeData.error);
             return null;
           }
 
           const text = claudeData.content?.[0]?.text || "{}";
+          console.log(`Claude response for "${email.subject}":`, text);
           const jsonMatch = text.match(/\{[\s\S]*\}/);
           const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
 
-          if (!parsed.is_financial) return null;
+          if (!parsed.is_financial) {
+            console.log(`Not financial: "${email.subject}"`);
+            return null;
+          }
 
           return {
             vendor: parsed.vendor || "",
