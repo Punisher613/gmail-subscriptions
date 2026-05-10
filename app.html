@@ -2731,13 +2731,6 @@
 
       items.push(item);
       renderCustomRow(item);
-
-      // Save HTML receipt as viewable attachment
-      if (src.body_html) {
-        const htmlDataUrl = 'data:text/html;base64,' + btoa(unescape(encodeURIComponent(src.body_html)));
-        saveFiles(id, [{ name: 'Email Receipt', data: htmlDataUrl, amount: src.amount || null }]);
-      }
-
       imported++;
     });
 

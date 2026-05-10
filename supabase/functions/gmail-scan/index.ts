@@ -145,8 +145,9 @@ serve(async (req) => {
     }
 
     // Search Gmail for receipt-like emails (last 6 months)
+    // Don't exclude promotions — many real receipts (Apple, etc.) land there
     const query =
-      '(subject:(receipt OR invoice OR "order confirmation" OR payment OR subscription OR "billing statement" OR "your order" OR purchase OR renewal OR charged OR transaction) OR from:(noreply OR no-reply OR receipt OR invoice OR billing OR payments OR statements OR store OR orders)) newer_than:6m -category:promotions';
+      '(subject:(receipt OR invoice OR "order confirmation" OR payment OR subscription OR "billing statement" OR "your order" OR purchase OR renewal OR charged OR transaction OR "amount due" OR refund OR "payment received" OR "auto-pay" OR "monthly statement" OR "annual plan" OR upgrade) OR from:(noreply OR no-reply OR receipt OR invoice OR billing OR payments OR statements OR store OR orders OR apple OR google OR amazon OR paypal OR stripe OR shopify OR venmo OR cashapp OR zelle OR netflix OR spotify OR hulu OR disney OR adobe OR microsoft OR uber OR lyft OR doordash OR grubhub OR instacart OR walmart OR target OR bestbuy OR costco)) newer_than:6m';
     const searchUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(
       query
     )}&maxResults=50`;
