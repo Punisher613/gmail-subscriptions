@@ -2531,10 +2531,13 @@
   };
 
   async function connectGmail() {
+    const redirectUrl = window.location.hostname === 'localhost'
+      ? window.location.origin + '/app.html'
+      : 'https://punisher613.github.io/gmail-subscriptions/app.html';
     const { error } = await _sb.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/gmail-subscriptions/app.html',
+        redirectTo: redirectUrl,
         scopes: 'https://www.googleapis.com/auth/gmail.readonly',
         queryParams: {
           access_type: 'offline',
