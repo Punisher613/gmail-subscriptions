@@ -2563,15 +2563,23 @@
       let accessToken = window._googleAccessToken;
       let refreshToken = null;
 
+      // Also try to get token from current session
+      if (!accessToken) {
+        const { data: { session } } = await _sb.auth.getSession();
+        if (session?.provider_token) accessToken = session.provider_token;
+      }
+
       if (!accessToken) {
         const conn = await getGmailConnection();
         if (conn) refreshToken = conn.google_refresh_token;
       }
 
       if (!accessToken && !refreshToken) {
-        showGmailError('Gmail not connected. Please connect your Gmail account first.');
+        showGmailError('Gmail not connected. Please log out and log back in with Google to grant Gmail access.');
         return;
       }
+
+      console.log('Gmail scan: token=' + (accessToken ? 'yes' : 'no') + ', refresh=' + (refreshToken ? 'yes' : 'no'));
 
       // Step 1: Search inbox
       document.getElementById('gmail-scan-bar').style.width = '10%';
@@ -2585,6 +2593,7 @@
       });
 
       const scanData = await scanRes.json();
+      console.log('Gmail scan response:', scanData);
       if (scanData.error) {
         showGmailError(scanData.error);
         return;
@@ -2616,10 +2625,12 @@
           body: JSON.stringify({ emails: batch })
         });
         const parseData = await parseRes.json();
+        console.log('Gmail parse batch result:', parseData);
         if (parseData.items) allItems.push(...parseData.items);
       }
 
       document.getElementById('gmail-scan-bar').style.width = '100%';
+      console.log('Total financial items found:', allItems.length, allItems);
 
       // Deduplicate against existing items
       const existing = getCustomItems();
