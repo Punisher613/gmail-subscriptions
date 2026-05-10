@@ -109,6 +109,7 @@ Return ONLY the JSON object, no other text.`;
             category: parsed.category || "paid",
             source_subject: email.subject,
             message_id: email.message_id,
+            body_html: email.body_html || "",
           };
         } catch (err) {
           console.error("Error parsing email:", email.subject, err);

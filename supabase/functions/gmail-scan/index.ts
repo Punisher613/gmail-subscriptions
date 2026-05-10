@@ -55,6 +55,28 @@ function extractText(payload: any): string {
   return "";
 }
 
+// Extract HTML from a Gmail message payload (for receipt display)
+function extractHtml(payload: any): string {
+  if (!payload) return "";
+  if (payload.mimeType === "text/html" && payload.body?.data) {
+    return decodeBase64Url(payload.body.data);
+  }
+  if (payload.parts) {
+    for (const part of payload.parts) {
+      if (part.mimeType === "text/html" && part.body?.data) {
+        return decodeBase64Url(part.body.data);
+      }
+    }
+    for (const part of payload.parts) {
+      if (part.parts) {
+        const html = extractHtml(part);
+        if (html) return html;
+      }
+    }
+  }
+  return "";
+}
+
 // Get header value from Gmail message
 function getHeader(headers: any[], name: string): string {
   const h = headers?.find(
@@ -124,7 +146,7 @@ serve(async (req) => {
 
     // Search Gmail for receipt-like emails (last 6 months)
     const query =
-      'subject:(receipt OR invoice OR "order confirmation" OR "payment" OR "subscription" OR "billing statement" OR "your order" OR "purchase") newer_than:6m';
+      '(subject:(receipt OR invoice OR "order confirmation" OR payment OR subscription OR "billing statement" OR "your order" OR purchase OR renewal OR charged OR transaction) OR from:(noreply OR no-reply OR receipt OR invoice OR billing OR payments OR statements OR store OR orders)) newer_than:6m -category:promotions';
     const searchUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(
       query
     )}&maxResults=50`;
@@ -177,12 +199,17 @@ serve(async (req) => {
         let bodyText = extractText(msg.payload);
         if (bodyText.length > 2000) bodyText = bodyText.substring(0, 2000);
 
+        // Extract HTML body for receipt display
+        let bodyHtml = extractHtml(msg.payload);
+        if (bodyHtml.length > 50000) bodyHtml = bodyHtml.substring(0, 50000);
+
         emails.push({
           message_id: msg.id,
           subject,
           from,
           date,
           body_text: bodyText,
+          body_html: bodyHtml,
         });
       }
     }
