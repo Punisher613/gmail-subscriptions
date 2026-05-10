@@ -98,7 +98,7 @@ Return ONLY the JSON object, no other text.`;
 
           if (!parsed.is_financial) {
             console.log(`Not financial: "${email.subject}"`);
-            return null;
+            return { _debug_not_financial: true, _debug_subject: email.subject, _debug_claude: text, _debug_body_preview: (email.body_text || '').substring(0, 200) };
           }
 
           return {
@@ -118,10 +118,11 @@ Return ONLY the JSON object, no other text.`;
     );
 
     // Separate debug info from real items
-    const items = results.filter((r: any) => r !== null && !r._debug_error);
+    const items = results.filter((r: any) => r !== null && !r._debug_error && !r._debug_not_financial);
     const debug = results.map((r: any, i: number) => {
-      if (r === null) return { subject: emails[i]?.subject, result: 'not_financial' };
+      if (r === null) return { subject: emails[i]?.subject, result: 'null' };
       if (r._debug_error) return { subject: r._debug_subject, error: r._debug_error };
+      if (r._debug_not_financial) return { subject: r._debug_subject, result: 'not_financial', claude_said: r._debug_claude, body_preview: r._debug_body_preview };
       return { subject: r.source_subject, result: 'financial', vendor: r.vendor };
     });
 
